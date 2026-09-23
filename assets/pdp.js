@@ -23,7 +23,81 @@
     $$('[data-gallery-count]').forEach((node) => {
       node.textContent = `Image ${galleryIndex + 1} of ${galleryData.length}`
     })
+    setZoom(false)
     if (lightbox) renderLightbox()
+  }
+
+  const ZOOM_SCALE = 2.5
+  const TAP_TOLERANCE = 4
+  const zoomMedia = document.querySelector('[data-zoom-media]')
+  const zoomImage = document.querySelector('[data-zoom-image]')
+  const zoomToggle = document.querySelector('[data-zoom-toggle]')
+  const zoomState = { zoomed: false, x: 50, y: 50, drag: null }
+  const clampPercent = (value) => Math.min(100, Math.max(0, value))
+
+  const applyZoom = () => {
+    if (!zoomMedia || !zoomImage) return
+    zoomMedia.classList.toggle('mediaZoomed', zoomState.zoomed)
+    zoomImage.style.transform = zoomState.zoomed ? `scale(${ZOOM_SCALE})` : ''
+    zoomImage.style.transformOrigin = `${zoomState.x}% ${zoomState.y}%`
+    if (zoomToggle) {
+      zoomToggle.setAttribute('aria-label', zoomState.zoomed ? 'Zoom out' : 'Zoom in')
+      zoomToggle.setAttribute('aria-pressed', String(zoomState.zoomed))
+      zoomToggle
+        .querySelector('[data-zoom-icon]')
+        ?.setAttribute('d', zoomState.zoomed ? 'M8 11h6' : 'M8 11h6M11 8v6')
+    }
+  }
+
+  function setZoom(zoomed, x = 50, y = 50) {
+    zoomState.zoomed = zoomed
+    if (zoomed) {
+      zoomState.x = x
+      zoomState.y = y
+    }
+    applyZoom()
+  }
+
+  if (zoomMedia && zoomImage) {
+    zoomImage.addEventListener('pointerdown', (event) => {
+      if (event.button !== 0) return
+      zoomState.drag = {
+        x: event.clientX,
+        y: event.clientY,
+        ox: zoomState.x,
+        oy: zoomState.y,
+        moved: false,
+      }
+      if (zoomState.zoomed) zoomImage.setPointerCapture(event.pointerId)
+    })
+    zoomImage.addEventListener('pointermove', (event) => {
+      const drag = zoomState.drag
+      if (!drag) return
+      const rect = zoomMedia.getBoundingClientRect()
+      const dx = event.clientX - drag.x
+      const dy = event.clientY - drag.y
+      if (Math.abs(dx) + Math.abs(dy) > TAP_TOLERANCE) drag.moved = true
+      if (!zoomState.zoomed || !drag.moved) return
+      zoomState.x = clampPercent(drag.ox - (dx / (rect.width * (ZOOM_SCALE - 1))) * 100)
+      zoomState.y = clampPercent(drag.oy - (dy / (rect.height * (ZOOM_SCALE - 1))) * 100)
+      applyZoom()
+    })
+    zoomImage.addEventListener('pointerup', (event) => {
+      const drag = zoomState.drag
+      zoomState.drag = null
+      if (!drag || drag.moved) return
+      if (zoomState.zoomed) return setZoom(false)
+      const rect = zoomMedia.getBoundingClientRect()
+      setZoom(
+        true,
+        clampPercent(((event.clientX - rect.left) / rect.width) * 100),
+        clampPercent(((event.clientY - rect.top) / rect.height) * 100)
+      )
+    })
+    zoomImage.addEventListener('pointercancel', () => {
+      zoomState.drag = null
+    })
+    zoomToggle?.addEventListener('click', () => setZoom(!zoomState.zoomed))
   }
 
   const setIndex = (index) => {
