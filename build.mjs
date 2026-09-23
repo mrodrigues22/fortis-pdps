@@ -629,7 +629,7 @@ const indexPage = () =>
   shell({
     slug: null,
     prefix: './',
-    title: 'Fortis PDP Redesign Previews',
+    title: 'Fortis Product Pages',
     description: 'Product detail pages for Arista, Bethyl and AbCore.',
     gallery: null,
     body: `
