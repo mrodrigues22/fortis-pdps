@@ -61,7 +61,7 @@ const renderPage = (data) => {
   const showAddToCart = data.skuStatusText === 'Active'
 
   const chips = []
-  if (data.validationText) chips.push({ label: 'Validated', variant: 'primary', validation: true })
+  if (data.validationText) chips.push({ label: 'Validated: See How >', variant: 'primary', validation: true })
   const categoryLabel = prop('tenant~web-category-list')[0]
   if (categoryLabel) chips.push({ label: categoryLabel, variant: 'outline' })
 

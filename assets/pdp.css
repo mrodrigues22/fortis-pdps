@@ -2424,6 +2424,12 @@
   grid-column: 1;
 }
 
+.mobileBarActive .mobileCartBtn:last-child {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: calc(50% - 3.5px);
+}
+
 .mobileCartBtn:hover {
   background: #2fa82f;
 }
