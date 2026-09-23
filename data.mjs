@@ -75,7 +75,16 @@ export const products = {
       ],
     },
     documents: [
-      { id: 'ds', assettype: 'Datasheet', href: '#' },
+      {
+        id: 'ds',
+        assettype: 'Datasheet',
+        href: 'https://cdn.builder.io/o/assets%2Fce1ea832308e45d1a9079c87c4bdd80f%2F411b700fc328493b9f54efceb81c8bd5?alt=media&token=46998ada-8879-4887-acb6-81598f5d00fb&apiKey=ce1ea832308e45d1a9079c87c4bdd80f',
+      },
+      {
+        id: 'coa',
+        assettype: 'COA',
+        href: 'https://cdn.builder.io/o/assets%2Fce1ea832308e45d1a9079c87c4bdd80f%2Fbcc1e75f7f9545f98930835760fb92a8?alt=media&token=45576c23-b871-4ce5-8a15-23767824a039&apiKey=ce1ea832308e45d1a9079c87c4bdd80f',
+      },
       { id: 'sds', assettype: 'SDS', href: '#' },
     ],
     citations: null,

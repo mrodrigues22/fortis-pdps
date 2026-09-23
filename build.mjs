@@ -361,7 +361,7 @@ const renderPage = (data) => {
           <div class="documentRow">
             <span class="docIcon">${DocIcon}</span>
             <span>
-              <span class="docTitle">${doc.assettype === 'Datasheet' ? 'Product Datasheet' : 'Safety Data Sheet'}</span>
+              <span class="docTitle">${doc.assettype === 'Datasheet' ? 'Product Datasheet' : doc.assettype === 'COA' ? 'Certificate of Analysis' : 'Safety Data Sheet'}</span>
               <span class="docSub">PDF · ${esc(catalogNumber)}${lotLabel ? ` · Lot ${esc(lotLabel)}` : ''}</span>
             </span>
             <span class="docAction"><span>Open</span>${Arrow}</span>
