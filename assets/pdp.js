@@ -188,14 +188,4 @@
       closeValidation()
     }
   })
-
-  $$('[data-demo-action]').forEach((button) =>
-    button.addEventListener('click', () => {
-      const label = button.textContent
-      button.textContent = 'Preview only'
-      setTimeout(() => {
-        button.textContent = label
-      }, 1400)
-    })
-  )
 })()

@@ -7,11 +7,6 @@ import { buildFacts, findProperty, getPropertyValues } from './src/pdpProperties
 import { getSpecGroups } from './src/pdpSpecGroups.ts'
 
 const SITE = 'https://www.fortislife.com'
-const BRANDS = [
-  { slug: 'arista', label: 'Arista' },
-  { slug: 'bethyl', label: 'Bethyl' },
-  { slug: 'abcore', label: 'AbCore' },
-]
 
 const esc = (value) =>
   String(value ?? '')
@@ -170,7 +165,7 @@ const renderPage = (data) => {
       ${
         showAddToCart
           ? `<div class="buyRow buyRowActive">
-          <button type="button" class="buyBtn add-to-cart-button" data-demo-action>Add to Cart</button>
+          <button type="button" class="buyBtn add-to-cart-button">Add to Cart</button>
           ${qtyControl('qty')}
         </div>`
           : ''
@@ -501,7 +496,7 @@ const renderPage = (data) => {
     : ''
 
   const mobileCta = showAddToCart
-    ? `<button type="button" class="mobileCartBtn" data-demo-action>Add to Cart</button>${qtyControl('mobileFixedQty')}`
+    ? `<button type="button" class="mobileCartBtn">Add to Cart</button>${qtyControl('mobileFixedQty')}`
     : data.skuStatusText === 'CustomCTA'
       ? `<a href="${esc(siteHref(data.ctaHref))}" class="mobileCartBtn">${esc(data.customCTALabel)}</a>`
       : ''
@@ -559,24 +554,13 @@ const renderPage = (data) => {
   return shell({
     slug: data.slug,
     title: `${data.brandName} ${heroTitle} (${catalogNumber})`,
-    description: `PDP redesign preview — ${data.brandName}`,
+    description: `${data.brandName} ${heroTitle}`,
     body,
     gallery,
   })
 }
 
 const header = (slug, prefix) => `
-  <div class="site-preview">
-    <div class="site-preview-inner">
-      <span>PDP redesign preview · not the live site</span>
-      <nav aria-label="Brand previews">
-        ${BRANDS.map(
-          (brand) =>
-            `<a href="${prefix}${brand.slug}/"${brand.slug === slug ? ' aria-current="page"' : ''}>${brand.label}</a>`
-        ).join('')}
-      </nav>
-    </div>
-  </div>
   <header class="site-header" id="fixed-header-wrapper">
     <div class="site-header-inner">
       <a class="site-logo" href="${prefix}"><img src="${prefix}assets/img/logos/fortis-logo.png" alt="Fortis Life Sciences" /></a>
@@ -646,7 +630,7 @@ const indexPage = () =>
     slug: null,
     prefix: './',
     title: 'Fortis PDP Redesign Previews',
-    description: 'Product detail page redesign previews for Arista, Bethyl and AbCore.',
+    description: 'Product detail pages for Arista, Bethyl and AbCore.',
     gallery: null,
     body: `
   <main class="index">
@@ -675,7 +659,7 @@ const indexPage = () =>
         <img src="./assets/img/logos/${item.brand}-logo.png" alt="${esc(item.brandName)}" />
         <strong>${esc(item.title)}</strong>
         <span>${esc(item.catalogNumber)}</span>
-        <em>Open preview ›</em>
+        <em>View product ›</em>
       </a>`
         )
         .join('')}

@@ -12,47 +12,6 @@ body {
   overflow-x: hidden;
 }
 
-.site-preview {
-  background: #1b1a24;
-  color: #c9c8d6;
-  font-size: 12px;
-  line-height: 1.4;
-}
-
-.site-preview-inner {
-  width: min(1152px, calc(100% - 32px));
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 8px 0;
-  flex-wrap: wrap;
-}
-
-.site-preview nav {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-
-.site-preview a {
-  color: #fff;
-  text-decoration: none;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-weight: 600;
-}
-
-.site-preview a:hover {
-  background: rgba(255, 255, 255, 0.12);
-}
-
-.site-preview a[aria-current='page'] {
-  background: #fff;
-  color: #1b1a24;
-}
-
 .site-header {
   position: sticky;
   top: 0;
