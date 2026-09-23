@@ -182,13 +182,13 @@ const renderPage = (data) => {
   const hasImages = gallery.length > 0
   const mainSrc = hasImages ? gallery[0].src : logo(data.brand)
   const galleryHtml = `
-      <div class="mediaMain${hasImages ? ' mediaZoomable' : ''}"${hasImages ? ' data-zoom-media' : ''}>
+      <div class="mediaMain"${hasImages ? ' data-zoom-media' : ''}>
         <img data-gallery-main${hasImages ? ' data-zoom-image draggable="false"' : ''} src="${esc(mainSrc)}" alt="${esc(hasImages ? gallery[0].alt : '')}" />
         ${hasImages && gallery[0].description ? '<button type="button" class="mediaInfoDot" data-lightbox-open aria-label="View image details">i</button>' : ''}
         ${
           hasImages
-            ? `<button type="button" class="zoom" data-zoom-toggle aria-label="Zoom in" aria-pressed="false">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /><path data-zoom-icon d="M8 11h6M11 8v6" /></svg>
+            ? `<button type="button" class="zoom" data-lightbox-open aria-label="Zoom image">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
         </button>`
             : ''
         }

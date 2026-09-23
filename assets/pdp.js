@@ -23,81 +23,113 @@
     $$('[data-gallery-count]').forEach((node) => {
       node.textContent = `Image ${galleryIndex + 1} of ${galleryData.length}`
     })
-    setZoom(false)
+    resetZoom()
     if (lightbox) renderLightbox()
   }
 
-  const ZOOM_SCALE = 2.5
-  const TAP_TOLERANCE = 4
+  const MAX_ZOOM = 8
+  const WHEEL_SENSITIVITY = 0.002
+  const DOUBLE_CLICK_ZOOM = 1.7
   const zoomMedia = document.querySelector('[data-zoom-media]')
   const zoomImage = document.querySelector('[data-zoom-image]')
-  const zoomToggle = document.querySelector('[data-zoom-toggle]')
-  const zoomState = { zoomed: false, x: 50, y: 50, drag: null }
-  const clampPercent = (value) => Math.min(100, Math.max(0, value))
+  const zoom = { scale: 1, tx: 0, ty: 0, gesture: null, pointers: new Map() }
+  const clampZoom = (value) => Math.min(MAX_ZOOM, Math.max(1, value))
 
-  const applyZoom = () => {
+  const renderZoom = () => {
     if (!zoomMedia || !zoomImage) return
-    zoomMedia.classList.toggle('mediaZoomed', zoomState.zoomed)
-    zoomImage.style.transform = zoomState.zoomed ? `scale(${ZOOM_SCALE})` : ''
-    zoomImage.style.transformOrigin = `${zoomState.x}% ${zoomState.y}%`
-    if (zoomToggle) {
-      zoomToggle.setAttribute('aria-label', zoomState.zoomed ? 'Zoom out' : 'Zoom in')
-      zoomToggle.setAttribute('aria-pressed', String(zoomState.zoomed))
-      zoomToggle
-        .querySelector('[data-zoom-icon]')
-        ?.setAttribute('d', zoomState.zoomed ? 'M8 11h6' : 'M8 11h6M11 8v6')
+    zoom.tx = Math.min(0, Math.max(zoomMedia.clientWidth * (1 - zoom.scale), zoom.tx))
+    zoom.ty = Math.min(0, Math.max(zoomMedia.clientHeight * (1 - zoom.scale), zoom.ty))
+    zoomImage.style.transform =
+      zoom.scale > 1 ? `translate(${zoom.tx}px, ${zoom.ty}px) scale(${zoom.scale})` : ''
+    zoomImage.style.touchAction = zoom.scale > 1 ? 'none' : 'pan-y'
+    zoomImage.style.cursor = zoom.scale > 1 ? 'grab' : ''
+  }
+
+  function resetZoom() {
+    zoom.scale = 1
+    zoom.pointers.clear()
+    zoom.gesture = null
+    renderZoom()
+  }
+
+  const localPoint = (event) => {
+    const rect = zoomMedia.getBoundingClientRect()
+    return {
+      x: event.clientX - rect.left - zoomMedia.clientLeft,
+      y: event.clientY - rect.top - zoomMedia.clientTop,
     }
   }
 
-  function setZoom(zoomed, x = 50, y = 50) {
-    zoomState.zoomed = zoomed
-    if (zoomed) {
-      zoomState.x = x
-      zoomState.y = y
+  const transformAround = (nextScale, from, anchor, target) => {
+    zoom.scale = clampZoom(nextScale)
+    zoom.tx = target.x - (anchor.x - from.tx) * (zoom.scale / from.scale)
+    zoom.ty = target.y - (anchor.y - from.ty) * (zoom.scale / from.scale)
+    renderZoom()
+  }
+
+  const gesturePoint = () => {
+    const points = Array.from(zoom.pointers.values())
+    return {
+      x: points.reduce((sum, point) => sum + point.x, 0) / points.length,
+      y: points.reduce((sum, point) => sum + point.y, 0) / points.length,
+      distance:
+        points.length > 1 ? Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y) : 0,
     }
-    applyZoom()
+  }
+
+  const startGesture = () => {
+    zoom.gesture = zoom.pointers.size
+      ? { scale: zoom.scale, tx: zoom.tx, ty: zoom.ty, ...gesturePoint() }
+      : null
+  }
+
+  const endPointer = (event) => {
+    if (!zoom.pointers.delete(event.pointerId)) return
+    startGesture()
   }
 
   if (zoomMedia && zoomImage) {
+    zoomImage.style.transformOrigin = '0 0'
+    zoomImage.style.userSelect = 'none'
+    renderZoom()
+
+    zoomMedia.addEventListener(
+      'wheel',
+      (event) => {
+        const delta = event.deltaY * (event.deltaMode === 1 ? 16 : 1)
+        const nextScale = clampZoom(zoom.scale * Math.exp(-delta * WHEEL_SENSITIVITY))
+        if (nextScale === zoom.scale) return
+        event.preventDefault()
+        const point = localPoint(event)
+        transformAround(nextScale, zoom, point, point)
+      },
+      { passive: false }
+    )
+    zoomImage.addEventListener('dblclick', (event) => {
+      const point = localPoint(event)
+      transformAround(zoom.scale * DOUBLE_CLICK_ZOOM, zoom, point, point)
+    })
     zoomImage.addEventListener('pointerdown', (event) => {
-      if (event.button !== 0) return
-      zoomState.drag = {
-        x: event.clientX,
-        y: event.clientY,
-        ox: zoomState.x,
-        oy: zoomState.y,
-        moved: false,
-      }
-      if (zoomState.zoomed) zoomImage.setPointerCapture(event.pointerId)
+      if (event.pointerType === 'mouse' && event.button !== 0) return
+      zoom.pointers.set(event.pointerId, localPoint(event))
+      if (event.pointerType === 'mouse') zoomImage.setPointerCapture(event.pointerId)
+      startGesture()
     })
     zoomImage.addEventListener('pointermove', (event) => {
-      const drag = zoomState.drag
-      if (!drag) return
-      const rect = zoomMedia.getBoundingClientRect()
-      const dx = event.clientX - drag.x
-      const dy = event.clientY - drag.y
-      if (Math.abs(dx) + Math.abs(dy) > TAP_TOLERANCE) drag.moved = true
-      if (!zoomState.zoomed || !drag.moved) return
-      zoomState.x = clampPercent(drag.ox - (dx / (rect.width * (ZOOM_SCALE - 1))) * 100)
-      zoomState.y = clampPercent(drag.oy - (dy / (rect.height * (ZOOM_SCALE - 1))) * 100)
-      applyZoom()
+      const gesture = zoom.gesture
+      if (!gesture || !zoom.pointers.has(event.pointerId)) return
+      zoom.pointers.set(event.pointerId, localPoint(event))
+      if (zoom.pointers.size < 2 && zoom.scale === 1) return
+      const current = gesturePoint()
+      const nextScale =
+        zoom.pointers.size > 1 && gesture.distance
+          ? gesture.scale * (current.distance / gesture.distance)
+          : gesture.scale
+      transformAround(nextScale, gesture, gesture, current)
     })
-    zoomImage.addEventListener('pointerup', (event) => {
-      const drag = zoomState.drag
-      zoomState.drag = null
-      if (!drag || drag.moved) return
-      if (zoomState.zoomed) return setZoom(false)
-      const rect = zoomMedia.getBoundingClientRect()
-      setZoom(
-        true,
-        clampPercent(((event.clientX - rect.left) / rect.width) * 100),
-        clampPercent(((event.clientY - rect.top) / rect.height) * 100)
-      )
-    })
-    zoomImage.addEventListener('pointercancel', () => {
-      zoomState.drag = null
-    })
-    zoomToggle?.addEventListener('click', () => setZoom(!zoomState.zoomed))
+    zoomImage.addEventListener('pointerup', endPointer)
+    zoomImage.addEventListener('pointercancel', endPointer)
+    window.addEventListener('resize', renderZoom)
   }
 
   const setIndex = (index) => {
