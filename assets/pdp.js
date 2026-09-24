@@ -2,6 +2,8 @@
   const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector))
   const galleryData = JSON.parse(document.getElementById('pdp-gallery')?.textContent || '[]')
   const productTitle = document.querySelector('.title')?.firstChild?.textContent?.trim() || ''
+  const imageAlt = (image, i) =>
+    image.alt?.trim() || image.title?.trim() || `${productTitle}, image ${i + 1}`
   const arrow = (flip) =>
     `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="${
       flip ? 'M10 3.5 5.5 8 10 12.5' : 'M6 3.5 10.5 8 6 12.5'
@@ -15,7 +17,7 @@
     if (!current) return
     $$('[data-gallery-main]').forEach((img) => {
       img.src = current.src
-      img.alt = current.alt || ''
+      img.alt = imageAlt(current, galleryIndex)
     })
     $$('[data-gallery-thumb]').forEach((thumb) => {
       thumb.classList.toggle('thumbActive', Number(thumb.dataset.galleryThumb) === galleryIndex)
@@ -146,7 +148,7 @@
         <button type="button" class="lightboxClose" data-lb-close aria-label="Close">×</button>
         <div class="lightboxStage">
           ${many ? `<button type="button" class="lightboxNav lightboxPrev" data-lb-step="-1" aria-label="Previous image">${arrow(true)}</button>` : ''}
-          <img src="${current.src}" alt="${current.alt || ''}" />
+          <img src="${current.src}" alt="${imageAlt(current, galleryIndex)}" />
           ${many ? `<button type="button" class="lightboxNav lightboxNext" data-lb-step="1" aria-label="Next image">${arrow()}</button>` : ''}
         </div>
         <div class="lightboxSide">
@@ -160,7 +162,7 @@
                     (image, i) =>
                       `<button type="button" class="lightboxThumb ${
                         i === galleryIndex ? 'lightboxThumbActive' : ''
-                      }" data-lb-index="${i}" aria-label="View image ${i + 1}"><img src="${image.src}" alt="" /></button>`
+                      }" data-lb-index="${i}" aria-label="View image ${i + 1}"><img src="${image.src}" alt="${imageAlt(image, i)}" /></button>`
                   )
                   .join('')}</div>`
               : ''

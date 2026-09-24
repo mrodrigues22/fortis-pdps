@@ -178,12 +178,15 @@ const renderPage = (data) => {
         .join('')}
     </div>`
 
-  const gallery = data.gallery
+  const gallery = data.gallery.map((image, i) => ({
+    ...image,
+    alt: image.alt?.trim() || image.title?.trim() || `${heroTitle}, image ${i + 1}`,
+  }))
   const hasImages = gallery.length > 0
   const mainSrc = hasImages ? gallery[0].src : logo(data.brand)
   const galleryHtml = `
       <div class="mediaMain"${hasImages ? ' data-zoom-media' : ''}>
-        <img data-gallery-main${hasImages ? ' data-zoom-image draggable="false"' : ''} src="${esc(mainSrc)}" alt="${esc(hasImages ? gallery[0].alt : '')}" />
+        <img data-gallery-main${hasImages ? ' data-zoom-image draggable="false"' : ''} src="${esc(mainSrc)}" alt="${esc(hasImages ? gallery[0].alt : `${heroTitle}, no image available`)}" />
         ${hasImages && gallery[0].description ? '<button type="button" class="mediaInfoDot" data-lightbox-open aria-label="View image details">i</button>' : ''}
         ${
           hasImages
