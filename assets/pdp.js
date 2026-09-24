@@ -243,27 +243,61 @@
     })
   })
 
+  const mobileSizePicker = document.querySelector('[data-mobile-size-picker]')
+  const mobileSizeTrigger = mobileSizePicker?.querySelector('.mobileSizeTrigger')
+  const mobileSizeOptions = mobileSizePicker?.querySelector('.mobileSizeOptions')
+
+  const setMobileSizeOpen = (open) => {
+    if (!mobileSizePicker) return
+    mobileSizeOptions.hidden = !open
+    mobileSizeTrigger.classList.toggle('mobileSizeTriggerOpen', open)
+    mobileSizeTrigger.setAttribute('aria-expanded', String(open))
+  }
+
+  const selectVariant = (value) => {
+    $$('.sizeOption').forEach((node) => {
+      const selected = node.dataset.value === value
+      node.classList.toggle('sizeOptionSelected', selected)
+      node.setAttribute('aria-checked', String(selected))
+    })
+    let selectedOption = null
+    $$('.mobileSizeOption').forEach((node) => {
+      const selected = node.dataset.value === value
+      node.classList.toggle('mobileSizeOptionSelected', selected)
+      node.setAttribute('aria-selected', String(selected))
+      if (selected) selectedOption = node
+    })
+    if (selectedOption) {
+      mobileSizePicker.querySelector('.mobileSizeSelected').innerHTML = selectedOption.innerHTML
+    }
+    const sku = document.querySelector(`.sizeOption[data-value="${CSS.escape(value)}"]`)?.dataset.sku
+    if (sku) {
+      $$('[data-catalog]').forEach((node) => {
+        node.textContent = sku
+      })
+      $$('[data-copy]').forEach((node) => {
+        node.dataset.copy = sku
+      })
+    }
+  }
+
   $$('.optionList').forEach((list) => {
     list.addEventListener('click', (event) => {
       const option = event.target.closest('.sizeOption')
       if (!option || option.disabled) return
-      const value = option.dataset.value
-      $$('.optionList').forEach((otherList) =>
-        $$('.sizeOption', otherList).forEach((node) => {
-          const selected = node.dataset.value === value
-          node.classList.toggle('sizeOptionSelected', selected)
-          node.setAttribute('aria-checked', String(selected))
-        })
-      )
-      if (option.dataset.sku) {
-        $$('[data-catalog]').forEach((node) => {
-          node.textContent = option.dataset.sku
-        })
-        $$('[data-copy]').forEach((node) => {
-          node.dataset.copy = option.dataset.sku
-        })
-      }
+      selectVariant(option.dataset.value)
     })
+  })
+
+  mobileSizeTrigger?.addEventListener('click', () => setMobileSizeOpen(mobileSizeOptions.hidden))
+  mobileSizeOptions?.addEventListener('click', (event) => {
+    const option = event.target.closest('.mobileSizeOption')
+    if (!option || option.disabled) return
+    selectVariant(option.dataset.value)
+    setMobileSizeOpen(false)
+  })
+  document.addEventListener('pointerdown', (event) => {
+    if (mobileSizePicker && !mobileSizePicker.contains(event.target)) setMobileSizeOpen(false)
   })
 
   let quantity = 1
@@ -281,9 +315,6 @@
   toggle?.addEventListener('click', () => {
     const open = purchase.classList.toggle('mobileOpen')
     toggle.setAttribute('aria-expanded', String(open))
-    toggle.querySelector('.mobileSupportLabel').textContent = open
-      ? 'Hide support options'
-      : 'More support options'
   })
 
   const validation = document.getElementById('validation-modal')

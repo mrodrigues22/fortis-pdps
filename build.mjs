@@ -147,6 +147,37 @@ const renderPage = (data) => {
             <button type="button" data-qty="1" aria-label="Increase quantity">+</button>
           </div>`
 
+  const secondaryButtons = brandContent.secondaryCtas
+    .map(
+      (cta) =>
+        `<a href="${esc(siteHref(cta.href))}" class="${cta.variant === 'filled' ? 'sampleBtn' : 'bulkBtn'}">${esc(cta.label)}</a>`
+    )
+    .join('')
+
+  const sizeOptionContent = (option) => `
+            <span class="sizeMain">${esc(option.label)}</span>
+            <span class="sizeSku">${esc(option.sku ?? '')}</span>
+            <span class="sizePrice">${priceVisible && option.price ? esc(option.price) : ''}</span>`
+  const selectedVariant = data.variants.find((option) => option.value === selected)
+  const mobileSizePicker = selectedVariant
+    ? `
+        <div class="mobileSizePicker" data-mobile-size-picker>
+          <button type="button" class="mobileSizeTrigger" aria-haspopup="listbox" aria-expanded="false">
+            <span class="mobileSizeSelected">${sizeOptionContent(selectedVariant)}</span>
+            <span class="mobileSizeArrow" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M6 3.5 10.5 8 6 12.5" /></svg></span>
+          </button>
+          <div class="mobileSizeOptions" role="listbox" aria-label="Product size" hidden>
+            ${data.variants
+              .map(
+                (option) => `
+            <button type="button" role="option" aria-selected="${option.value === selected}" data-value="${esc(option.value)}" class="mobileSizeOption ${option.value === selected ? 'mobileSizeOptionSelected' : ''}">${sizeOptionContent(option)}
+            </button>`
+              )
+              .join('')}
+          </div>
+        </div>`
+    : ''
+
   const buyPanel = `
     <div class="buyPanel">
       ${variantPicker}
@@ -170,12 +201,7 @@ const renderPage = (data) => {
         </div>`
           : ''
       }
-      ${brandContent.secondaryCtas
-        .map(
-          (cta) =>
-            `<a href="${esc(siteHref(cta.href))}" class="${cta.variant === 'filled' ? 'sampleBtn' : 'bulkBtn'}">${esc(cta.label)}</a>`
-        )
-        .join('')}
+      ${secondaryButtons}
     </div>`
 
   const gallery = data.gallery.map((image, i) => ({
@@ -525,7 +551,7 @@ const renderPage = (data) => {
           <div class="titleLine"><h1 class="title">${esc(heroTitle)}</h1></div>
           ${chipsHtml}
           ${heroFactsHtml}
-          <div class="mobileGalleryMount"><div class="mediaCard">${mediaCardInner}</div></div>
+          <div class="mobileGalleryMount"><div class="mediaTop">${galleryHtml}</div></div>
           ${brandConfig.leftSections.map((id) => sectionNodes[id]).join('')}
         </div>
         <aside class="rail">
@@ -539,15 +565,17 @@ const renderPage = (data) => {
     <div class="mobilePurchase">
       <div class="mobileDrawer">
         <div class="mobileDrawerScroll">
+          <div class="mobileDrawerCtas">${secondaryButtons}</div>
           <div class="mobileSupportWrap"><div class="supportPanel">${supportRows}</div></div>
           <div class="mobileBrandWrap">${brandCard}</div>
         </div>
       </div>
       <div class="mobileBar mobileBarActive">
         <button type="button" class="mobileDrawerToggle" aria-expanded="false">
-          <span class="mobileSupportLabel">More support options</span>
+          <span class="mobileSupportLabel">See Support</span>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6" /></svg>
         </button>
+        ${mobileSizePicker}
         ${mobileCta}
       </div>
     </div>
