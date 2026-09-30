@@ -1233,7 +1233,7 @@
 
 .applicationRow {
   display: grid;
-  grid-template-columns: 232px minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: stretch;
   min-height: 47px;
   font-size: 13px;
@@ -1253,6 +1253,7 @@
   background: #eeeff3;
   font-weight: 600;
   line-height: 1.4;
+  white-space: nowrap;
 }
 
 .applicationValue {
@@ -2350,19 +2351,16 @@
 }
 
 @media (max-width: 760px) {
-  .specRow,
-  .applicationRow {
+  .specRow {
     grid-template-columns: 145px minmax(0, 1fr);
   }
 
-  .specLabel,
-  .applicationLabel {
+  .specLabel {
     padding: 0 10px;
   }
 
   .specValue,
-  .specLink,
-  .applicationValue {
+  .specLink {
     padding: 0 0 0 12px;
   }
 
