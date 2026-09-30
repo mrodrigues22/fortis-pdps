@@ -993,7 +993,7 @@
 
 .benefit {
   background: #fff;
-  color: #0b0929;
+  color: #1B1A24;
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -1013,10 +1013,10 @@
   height: 24px;
   flex: 0 0 24px;
   border-radius: 50%;
-  border: 1.5px solid #0b0929;
+  border: 1.5px solid #1B1A24;
   display: grid;
   place-items: center;
-  color: #0b0929;
+  color: #1B1A24;
   align-self: center;
 }
 
@@ -2225,6 +2225,10 @@
     font-size: 11px;
   }
 
+  .resourcesGrid {
+    grid-template-columns: 1fr;
+  }
+
   .relatedGrid {
     display: flex;
     overflow-x: auto;
@@ -2607,15 +2611,7 @@
 }
 
 .mobileDrawerCtas {
-  margin-bottom: 12px;
-}
-
-.mobileDrawerCtas:empty {
   display: none;
-}
-
-.mobileDrawerCtas > :first-child {
-  margin-top: 0;
 }
 
 /* ---------- mobile size picker ---------- */
