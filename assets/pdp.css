@@ -1039,14 +1039,16 @@
 .specTable {
   width: 100%;
   max-width: 920px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.specTable > div {
+  display: contents;
 }
 
 .specRow {
-  display: grid;
-  grid-template-columns: 232px minmax(0, 1fr);
-  align-items: stretch;
-  min-height: 47px;
-  padding: 0;
+  display: contents;
   font-size: 13px;
 }
 
@@ -1077,6 +1079,7 @@
   font-size: 13px;
   line-height: 1.4;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .specValue,
@@ -1201,6 +1204,7 @@
 }
 
 .specGroup {
+  grid-column: 1 / -1;
   min-height: 47px;
   display: flex;
   align-items: center;
@@ -2351,10 +2355,6 @@
 }
 
 @media (max-width: 760px) {
-  .specRow {
-    grid-template-columns: 145px minmax(0, 1fr);
-  }
-
   .specLabel {
     padding: 0 10px;
   }
@@ -2370,7 +2370,6 @@
     min-height: 44px;
   }
 
-  .specRow,
   .specLabel,
   .specValue,
   .specLink,
