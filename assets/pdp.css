@@ -1229,13 +1229,12 @@
   width: 100%;
   max-width: 920px;
   margin-top: 12px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
 }
 
 .applicationRow {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: stretch;
-  min-height: 47px;
+  display: contents;
   font-size: 13px;
 }
 
@@ -1246,6 +1245,7 @@
   min-height: 47px;
   border-bottom: 1px solid #f2f2f7;
   box-sizing: border-box;
+  font-size: 13px;
 }
 
 .applicationLabel {
